@@ -1,0 +1,28 @@
+### 1. Probar que la orden se liste
+GET http://localhost:8080/api/ordenes
+
+### 2. Registrar cambio de motor (Toyota Hilux 2015) - Éxito
+POST http://localhost:8080/api/cambios-motor
+Content-Type: application/json
+
+{
+  "id_orden": 1,
+  "id_vehiculo": 1,
+  "serie_motor_anterior": "VIEJO-12345",
+  "id_motor_nuevo": 1,
+  "destino_motor_retirado": "Chatarra autorizada",
+  "resultados_pruebas": "Pruebas de compresión y escáner OK."
+}
+
+### 3. Registrar cambio de motor - Bloqueo por Incompatibilidad
+POST http://localhost:8080/api/cambios-motor
+Content-Type: application/json
+
+{
+  "id_orden": 1,
+  "id_vehiculo": 1,
+  "serie_motor_anterior": "VIEJO-12345",
+  "id_motor_nuevo": 2,
+  "destino_motor_retirado": "Chatarra",
+  "resultados_pruebas": "Pruebas"
+}

@@ -1,0 +1,17 @@
+# Archivos compilados de Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Configuraciones de VS Code
+.vscode/
+.idea/
+*.iml
+
+# Archivos del sistema
+.DS_Store
+
+# Logs
+*.log
+
+# Archivo de configuración de la base de datos (Si tienes las contraseñas aquí)
+# src/main/resources/application.properties

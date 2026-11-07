@@ -84,4 +84,15 @@ public class ReporteController {
             """;
         return jdbcTemplate.queryForList(sql);
     }
+
+    @GetMapping("/inventario")
+    public List<Map<String, Object>> listarInventario() {
+        String sql = """
+            SELECT r.id_repuesto, r.nombre, r.descripcion, r.stock_actual, r.stock_minimo, r.costo, p.nombre AS proveedor
+            FROM Repuestos r
+            LEFT JOIN Proveedores p ON r.id_proveedor = p.id_proveedor
+            ORDER BY r.stock_actual ASC
+            """;
+        return jdbcTemplate.queryForList(sql);
+    }
 }

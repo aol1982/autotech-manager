@@ -55,11 +55,14 @@
             <li class="nav-item" role="presentation" id="tab-presupuestos">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#presupuestos" onclick="cargarPresupuestos()">Presupuestos y Cobros</button>
             </li>
+            <li class="nav-item" role="presentation" id="tab-inventario">
+                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">Inventario</button>
+            </li>
             <li class="nav-item" role="presentation" id="tab-nuevo-cliente">
                 <button class="nav-link text-success fw-bold" data-bs-toggle="tab" data-bs-target="#nuevo-cliente">+ Registrar Cliente</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-usuarios" style="display: none;">
-                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">⚙️ Usuarios</button>
+                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">Usuarios</button>
             </li>
         </ul>
 
@@ -186,7 +189,33 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 5: NUEVO CLIENTE -->
+            <!-- PESTAÑA 5: INVENTARIO -->
+            <div class="tab-pane fade" id="inventario">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Control de Inventario</span>
+                        <button class="btn btn-sm btn-dark fw-bold" onclick="cargarInventario()">Recargar</button>
+                    </div>
+                    <div class="card-body bg-white">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Repuesto</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Costo (L)</th>
+                                    <th>Proveedor</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-inventario"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 6: NUEVO CLIENTE -->
             <div class="tab-pane fade" id="nuevo-cliente">
                 <div class="card">
                     <div class="card-header bg-success text-white fw-bold">Registrar Nuevo Cliente</div>
@@ -209,7 +238,7 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 6: USUARIOS -->
+            <!-- PESTAÑA 7: USUARIOS -->
             <div class="tab-pane fade" id="usuarios">
                 <div class="card">
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
@@ -423,6 +452,7 @@
                 document.getElementById('tab-nuevo-cliente').style.display = 'none';
                 document.getElementById('tab-presupuestos').style.display = 'none';
                 document.getElementById('tab-usuarios').style.display = 'none';
+                document.getElementById('tab-inventario').style.display = 'none';
                 
                 document.getElementById('titulo-ordenes').innerText = "Mis Órdenes Asignadas";
             } else {
@@ -559,6 +589,30 @@
                         <td><strong>L. ${p.total}</strong></td>
                         <td>L. ${p.total_pagado}</td>
                         <td><span class="badge ${estadoColor}">${p.estado_orden}</span></td>
+                    </tr>`;
+            });
+        }
+
+        async function cargarInventario() {
+            const res = await fetch('/api/reportes/inventario');
+            const data = await res.json();
+            const tbody = document.getElementById('tabla-inventario');
+            tbody.innerHTML = '';
+            
+            data.forEach(r => {
+                let estadoBadge = r.stock_actual <= r.stock_minimo 
+                    ? '<span class="badge bg-danger">Bajo Stock</span>' 
+                    : '<span class="badge bg-success">Suficiente</span>';
+
+                tbody.innerHTML += `
+                    <tr class="bg-white">
+                        <td>${r.id_repuesto}</td>
+                        <td>${r.nombre}</td>
+                        <td><strong>${r.stock_actual}</strong></td>
+                        <td>${r.stock_minimo}</td>
+                        <td>L. ${r.costo}</td>
+                        <td>${r.proveedor || 'N/A'}</td>
+                        <td>${estadoBadge}</td>
                     </tr>`;
             });
         }

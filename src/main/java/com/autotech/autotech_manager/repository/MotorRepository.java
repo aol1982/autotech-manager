@@ -32,7 +32,8 @@ public class MotorRepository {
         List<Motor> lista = jdbc.query("SELECT * FROM Motores WHERE id_motor = ?", mapper, id);
         return lista.stream().findFirst();
     }
-        public int actualizarEstadoMotor(int idMotor, String nuevoEstado) {
+
+    public int actualizarEstadoMotor(int idMotor, String nuevoEstado) {
         return jdbc.update("UPDATE Motores SET estado = ? WHERE id_motor = ?", nuevoEstado, idMotor);
     }
 }

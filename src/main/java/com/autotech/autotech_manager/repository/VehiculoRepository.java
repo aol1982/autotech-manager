@@ -34,12 +34,12 @@ public class VehiculoRepository {
         return jdbc.query("SELECT * FROM Vehiculos ORDER BY placa", mapper);
     }
 
-    public List<Vehiculo> listarPorCliente(int idCliente) {
-        return jdbc.query("SELECT * FROM Vehiculos WHERE id_cliente = ? ORDER BY placa", mapper, idCliente);
-    }
-
     public Optional<Vehiculo> buscarPorId(int id) {
         List<Vehiculo> lista = jdbc.query("SELECT * FROM Vehiculos WHERE id_vehiculo = ?", mapper, id);
         return lista.stream().findFirst();
+    }
+    
+    public List<Vehiculo> listarPorCliente(int idCliente) {
+        return jdbc.query("SELECT * FROM Vehiculos WHERE id_cliente = ? ORDER BY placa", mapper, idCliente);
     }
 }

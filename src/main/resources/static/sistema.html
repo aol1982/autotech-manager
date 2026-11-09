@@ -1101,21 +1101,18 @@
             const btnCalidad = document.getElementById('btn-calidad');
             const btnGarantia = document.getElementById('btn-garantia');
             
-            const resMotores = await fetch('/api/reportes/historial-motores');
-            const historialMotores = await resMotores.json();
-            const tieneCambioMotor = historialMotores.some(c => c.id_orden === orden.id_orden);
+            btnCalidad.style.display = 'none';
+            btnGarantia.style.display = 'none';
 
-            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada') {
-                btnCalidad.style.display = 'none';
-                btnGarantia.style.display = 'none';
-            } else {
-                btnCalidad.style.display = 'inline-block';
-                
+            if (orden.estado !== 'Finalizada' && orden.estado !== 'Cancelada') {
+                const resDetalles = await fetch(`/api/detalles/${orden.id_orden}`);
+                const detalles = await resDetalles.json();
+                const tieneCambioMotor = detalles.some(d => d.servicio && d.servicio.includes('Cambio de Motor'));
+
                 if (tieneCambioMotor) {
+                    btnCalidad.style.display = 'inline-block';
                     btnGarantia.style.display = 'inline-block';
                     btnGarantia.href = `/api/pdf/garantia/${orden.id_orden}`;
-                } else {
-                    btnGarantia.style.display = 'none';
                 }
             }
 

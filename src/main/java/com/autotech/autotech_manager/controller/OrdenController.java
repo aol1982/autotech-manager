@@ -60,9 +60,15 @@ public class OrdenController {
         }
 
         if (nuevoEstado.equals("Finalizada")) {
-            Integer controles = jdbc.queryForObject("SELECT COUNT(*) FROM ControlesCalidad WHERE id_orden = ? AND resultado = 'Aprobado'", Integer.class, id);
-            if (controles == null || controles == 0) {
-                return ResponseEntity.badRequest().body("Error: No se puede finalizar la orden. Falta el Control de Calidad aprobado.");
+            Integer tieneCambioMotor = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM DetalleOrden d INNER JOIN Servicios s ON d.id_servicio = s.id_servicio WHERE d.id_orden = ? AND s.nombre LIKE '%Cambio de Motor%'", 
+                Integer.class, id);
+            
+            if (tieneCambioMotor != null && tieneCambioMotor > 0) {
+                Integer controles = jdbc.queryForObject("SELECT COUNT(*) FROM ControlesCalidad WHERE id_orden = ? AND resultado = 'Aprobado'", Integer.class, id);
+                if (controles == null || controles == 0) {
+                    return ResponseEntity.badRequest().body("Error: No se puede finalizar la orden. Falta el Control de Calidad aprobado para el cambio de motor.");
+                }
             }
         }
         

@@ -52,18 +52,29 @@ public class DetalleOrdenController {
             String nombreRepuesto = (String) body.get("nombre");
             Double costo = Double.parseDouble(body.get("costo").toString());
 
-            Integer idRepuesto = jdbc.query("SELECT id_repuesto FROM Repuestos WHERE nombre = ?", rs -> rs.next() ? rs.getInt("id_repuesto") : null, nombreRepuesto);
-            if (idRepuesto == null) {
+            // 1. Registrar el repuesto en la tabla Repuestos si no existe
+            Integer existeRepuesto = jdbc.queryForObject("SELECT COUNT(*) FROM Repuestos WHERE nombre = ?", Integer.class, nombreRepuesto);
+            if (existeRepuesto != null && existeRepuesto == 0) {
                 jdbc.update("INSERT INTO Repuestos (nombre, costo, stock_actual) VALUES (?, ?, 10)", nombreRepuesto, costo);
-                idRepuesto = jdbc.queryForObject("SELECT TOP 1 id_repuesto FROM Repuestos WHERE nombre = ? ORDER BY id_repuesto DESC", Integer.class, nombreRepuesto);
             }
 
-            jdbc.update("INSERT INTO DetalleOrden (id_orden, id_servicio, costo_aplicado) VALUES (?, 1, ?)", idOrden, costo);
-            actualizarPresupuesto(idOrden);
+            // 2. Buscar un servicio "Genérico" para asociar el repuesto (evita error de llave foránea)
+            Integer idServicioGenerico = jdbc.query(
+                "SELECT TOP 1 id_servicio FROM Servicios ORDER BY id_servicio ASC", 
+                rs -> rs.next() ? rs.getInt("id_servicio") : null
+            );
+
+            if (idServicioGenerico == null) {
+                return ResponseEntity.badRequest().body("Error: No hay servicios registrados para asociar el repuesto.");
+            }
+
+            // 3. Insertar en DetalleOrden
+            jdbc.update("INSERT INTO DetalleOrden (id_orden, id_servicio, costo_aplicado) VALUES (?, ?, ?)", idOrden, idServicioGenerico, costo);
             
+            actualizarPresupuesto(idOrden);
             return ResponseEntity.ok("Repuesto individual agregado.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al pedir el repuesto: " + e.getMessage());
         }
     }
 

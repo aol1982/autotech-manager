@@ -56,7 +56,7 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#presupuestos" onclick="cargarPresupuestos()">Presupuestos y Cobros</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-inventario">
-                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">Inventario</button>
+                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">📦 Repuestos</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-motores-inventario">
                 <button class="nav-link text-secondary fw-bold" data-bs-toggle="tab" data-bs-target="#motores-inventario" onclick="cargarMotores()">🔩 Motores</button>
@@ -65,10 +65,10 @@
                 <button class="nav-link text-success fw-bold" data-bs-toggle="tab" data-bs-target="#nuevo-cliente">+ Registrar Cliente</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-clientes">
-                <button class="nav-link text-info fw-bold" data-bs-toggle="tab" data-bs-target="#clientes" onclick="cargarClientes()">Clientes</button>
+                <button class="nav-link text-info fw-bold" data-bs-toggle="tab" data-bs-target="#clientes" onclick="cargarClientes()">👥 Clientes</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-usuarios" style="display: none;">
-                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">Usuarios</button>
+                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">⚙️ Usuarios</button>
             </li>
         </ul>
 
@@ -429,14 +429,13 @@
                             <div class="card-header py-1"><small><strong>Pedir Repuesto Individual</strong></small></div>
                             <div class="card-body py-2">
                                 <div class="row g-2">
-                                    <div class="col-6">
-                                        <input type="text" class="form-control form-control-sm" id="repuesto-nombre" placeholder="Nombre del repuesto">
+                                    <div class="col-8">
+                                        <select class="form-select form-select-sm" id="select-repuesto">
+                                            <option value="">Cargando repuestos...</option>
+                                        </select>
                                     </div>
-                                    <div class="col-3">
-                                        <input type="number" class="form-control form-control-sm" id="repuesto-costo" placeholder="Costo (L)">
-                                    </div>
-                                    <div class="col-3">
-                                        <button class="btn btn-sm btn-warning w-100" onclick="agregarRepuestoIndividual()">Pedir</button>
+                                    <div class="col-4">
+                                        <button class="btn btn-sm btn-warning w-100" onclick="agregarRepuestoSeleccionado()">Pedir Repuesto</button>
                                     </div>
                                 </div>
                             </div>
@@ -1125,6 +1124,7 @@
 
             cargarDetallesOrden(orden.id_orden);
             cargarCheckboxesServicios();
+            cargarRepuestosSelect();
 
             if (!modalInstance) {
                 modalInstance = new bootstrap.Modal(document.getElementById('modalOrden'));
@@ -1171,6 +1171,19 @@
             });
         }
 
+        async function cargarRepuestosSelect() {
+            const res = await fetch('/api/repuestos');
+            const data = await res.json();
+            const select = document.getElementById('select-repuesto');
+            select.innerHTML = '<option value="">Seleccione un repuesto...</option>';
+            
+            data.forEach(r => {
+                select.innerHTML += `<option value="${r.id_repuesto}" data-costo="${r.costo}" data-nombre="${r.nombre}">
+                    ${r.nombre} (L. ${r.costo}) - Stock: ${r.stock_actual}
+                </option>`;
+            });
+        }
+
         async function agregarServiciosSeleccionados() {
             const checkboxes = document.querySelectorAll('#lista-servicios-checks input[type="checkbox"]:checked');
             const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
@@ -1194,25 +1207,33 @@
             }
         }
 
-        async function agregarRepuestoIndividual() {
-            const nombre = document.getElementById('repuesto-nombre').value;
-            const costo = document.getElementById('repuesto-costo').value;
-
-            if (!nombre || !costo) {
-                alert("Escribe el nombre y el costo del repuesto.");
+        async function agregarRepuestoSeleccionado() {
+            const select = document.getElementById('select-repuesto');
+            const idRepuesto = select.value;
+            
+            if (!idRepuesto) {
+                alert("Selecciona un repuesto.");
                 return;
             }
+
+            const option = select.options[select.selectedIndex];
+            const nombreRepuesto = option.getAttribute('data-nombre');
+            const costo = parseFloat(option.getAttribute('data-costo'));
 
             const res = await fetch('/api/detalles/repuesto-individual', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_orden: ordenActivaId, nombre: nombre, costo: parseFloat(costo) })
+                body: JSON.stringify({ 
+                    id_orden: ordenActivaId, 
+                    nombre: nombreRepuesto, 
+                    costo: costo 
+                })
             });
 
             if (res.ok) {
-                document.getElementById('repuesto-nombre').value = '';
-                document.getElementById('repuesto-costo').value = '';
+                alert("Repuesto agregado a la orden y stock actualizado.");
                 cargarDetallesOrden(ordenActivaId);
+                cargarRepuestosSelect();
             } else {
                 const error = await res.text();
                 alert(error);

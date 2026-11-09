@@ -798,19 +798,22 @@
             }
 
             data.forEach(o => {
+                // CORRECCIÓN AQUÍ: Evita que falle si el estado llega nulo
+                let estadoStr = o.estado || ''; 
                 let color = 'bg-warning text-dark';
-                if (o.estado === 'Finalizada') color = 'bg-success';
-                else if (o.estado === 'Cancelada') color = 'bg-danger';
-                else if (o.estado.includes('Proceso') || o.estado.includes('Aprobación')) color = 'bg-info text-dark';
+                
+                if (estadoStr === 'Finalizada') color = 'bg-success';
+                else if (estadoStr === 'Cancelada') color = 'bg-danger';
+                else if (estadoStr.includes('Proceso') || estadoStr.includes('Aprobación')) color = 'bg-info text-dark';
 
                 tbody.innerHTML += `
                     <tr class="bg-white">
-                        <td><strong>#${o.id_orden}</strong></td>
-                        <td>${o.cliente}</td>
-                        <td>${o.vehiculo}</td>
-                        <td>${o.placa}</td>
+                        <td><strong>#${o.id_orden || ''}</strong></td>
+                        <td>${o.cliente || 'N/A'}</td>
+                        <td>${o.vehiculo || 'N/A'}</td>
+                        <td>${o.placa || 'N/A'}</td>
                         <td>${o.mecanico || 'Sin asignar'}</td>
-                        <td><span class="badge ${color}">${o.estado}</span></td>
+                        <td><span class="badge ${color}">${estadoStr || 'N/A'}</span></td>
                         <td>
                             <button class="btn btn-sm btn-primary" onclick="abrirModalPorId(${o.id_orden})">Gestionar Orden</button>
                         </td>
@@ -849,6 +852,40 @@
             } else {
                 const error = await res.text();
                 mensajeDiv.innerHTML = `<div class="alert alert-danger">${error}</div>`;
+            }
+        }
+
+        // CORRECCIÓN AQUÍ: Agregada la función guardarCliente que faltaba y rompía el HTML
+        async function guardarCliente(event) {
+            event.preventDefault();
+            const cliente = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                correo: document.getElementById('correo').value,
+                direccion: document.getElementById('direccion').value,
+                placa: document.getElementById('placa').value,
+                vin_chasis: document.getElementById('vin_chasis').value,
+                marca: document.getElementById('marca').value,
+                model: document.getElementById('model').value,
+                anio: parseInt(document.getElementById('anio').value),
+                color: document.getElementById('color').value,
+                kilometraje: parseInt(document.getElementById('kilometraje_cliente').value),
+                combustible: document.getElementById('combustible').value
+            };
+
+            const res = await fetch('/api/clientes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cliente)
+            });
+
+            const mensajeDiv = document.getElementById('mensaje-cliente');
+            if (res.ok) {
+                mensajeDiv.innerHTML = `<div class="alert alert-success">Cliente y vehículo registrados correctamente.</div>`;
+                document.getElementById('form-cliente').reset();
+            } else {
+                const error = await res.text();
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">Error al guardar: ${error}</div>`;
             }
         }
 
@@ -1396,16 +1433,13 @@
             modalMotorInstance.show();
         }
 
-        // --- FUNCIÓN CORREGIDA PARA EVITAR EL ERROR DE JAVA ---
         async function guardarCambioMotor(event) {
             event.preventDefault();
             const mensajeDiv = document.getElementById('mensaje-motor');
             mensajeDiv.innerHTML = '';
 
-            // 1. Obtener el id_vehiculo de forma segura
             let idVehiculo = parseInt(document.getElementById('modal-id-vehiculo').value);
 
-            // Si el input está vacío o da error, lo buscamos en la API como respaldo
             if (isNaN(idVehiculo) || !idVehiculo) {
                 try {
                     const resOrdenes = await fetch('/api/reportes/historial-ordenes');
@@ -1421,13 +1455,11 @@
                 }
             }
 
-            // Si después de buscar sigue vacío, bloqueamos el envío
             if (!idVehiculo || isNaN(idVehiculo)) {
                 mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> No se pudo determinar el ID del vehículo. Recargue la página e intente de nuevo.</div>`;
                 return;
             }
 
-            // 2. Armar el objeto con los datos validados
             const data = {
                 id_orden: ordenActivaId,
                 id_vehiculo: idVehiculo,
@@ -1437,7 +1469,6 @@
                 resultados_pruebas: document.getElementById('resultados_pruebas').value
             };
 
-            // 3. Validaciones previas
             if (!data.serie_motor_anterior || data.serie_motor_anterior.trim() === "") {
                 mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> Debe ingresar la serie del motor anterior.</div>`;
                 return;
@@ -1447,7 +1478,6 @@
                 return;
             }
 
-            // 4. Enviar al backend
             try {
                 const res = await fetch('/api/cambios-motor', {
                     method: 'POST',

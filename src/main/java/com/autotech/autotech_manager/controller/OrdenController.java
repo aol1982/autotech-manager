@@ -44,7 +44,11 @@ public class OrdenController {
             );
             return ResponseEntity.ok("Orden creada exitosamente en estado 'Recibida'.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al crear la orden: " + e.getMessage());
+            String mensajeError = e.getMessage();
+            if (mensajeError != null && (mensajeError.contains("FOREIGN KEY") || mensajeError.contains("REFERENCE"))) {
+                return ResponseEntity.badRequest().body("Error: El ID del vehículo o del mecánico no existe en la base de datos. Verifique los datos.");
+            }
+            return ResponseEntity.badRequest().body("Error al crear la orden: " + mensajeError);
         }
     }
 

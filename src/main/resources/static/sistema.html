@@ -1119,7 +1119,7 @@
             document.getElementById('modal-id-orden').innerText = '#' + orden.id_orden;
             document.getElementById('modal-cliente').innerText = orden.cliente;
             document.getElementById('modal-vehiculo-texto').innerText = orden.vehiculo + ' - Placa: ' + orden.placa;
-            document.getElementById('modal-id-vehiculo').value = orden.id_vehiculo;
+            document.getElementById('modal-id-vehiculo').value = orden.id_vehiculo; // <-- Aquí se llena el input
             
             const spanEstado = document.getElementById('modal-estado');
             spanEstado.innerText = orden.estado;
@@ -1396,43 +1396,80 @@
             modalMotorInstance.show();
         }
 
+        // --- FUNCIÓN CORREGIDA PARA EVITAR EL ERROR DE JAVA ---
         async function guardarCambioMotor(event) {
             event.preventDefault();
             const mensajeDiv = document.getElementById('mensaje-motor');
             mensajeDiv.innerHTML = '';
 
+            // 1. Obtener el id_vehiculo de forma segura
+            let idVehiculo = parseInt(document.getElementById('modal-id-vehiculo').value);
+
+            // Si el input está vacío o da error, lo buscamos en la API como respaldo
+            if (isNaN(idVehiculo) || !idVehiculo) {
+                try {
+                    const resOrdenes = await fetch('/api/reportes/historial-ordenes');
+                    if (resOrdenes.ok) {
+                        const ordenes = await resOrdenes.json();
+                        const ordenActual = ordenes.find(o => o.id_orden === ordenActivaId);
+                        if (ordenActual && ordenActual.id_vehiculo) {
+                            idVehiculo = parseInt(ordenActual.id_vehiculo);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error buscando el vehículo:", e);
+                }
+            }
+
+            // Si después de buscar sigue vacío, bloqueamos el envío
+            if (!idVehiculo || isNaN(idVehiculo)) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> No se pudo determinar el ID del vehículo. Recargue la página e intente de nuevo.</div>`;
+                return;
+            }
+
+            // 2. Armar el objeto con los datos validados
             const data = {
                 id_orden: ordenActivaId,
-                id_vehiculo: parseInt(document.getElementById('modal-id-vehiculo').value),
+                id_vehiculo: idVehiculo,
                 serie_motor_anterior: document.getElementById('serie_vieja').value,
                 id_motor_nuevo: parseInt(document.getElementById('id_motor_nuevo').value),
                 destino_motor_retirado: document.getElementById('destino_retirado').value,
                 resultados_pruebas: document.getElementById('resultados_pruebas').value
             };
 
+            // 3. Validaciones previas
             if (!data.serie_motor_anterior || data.serie_motor_anterior.trim() === "") {
                 mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> Debe ingresar la serie del motor anterior.</div>`;
                 return;
             }
+            if (!data.id_motor_nuevo || isNaN(data.id_motor_nuevo)) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> Debe seleccionar un motor nuevo.</div>`;
+                return;
+            }
 
-            const res = await fetch('/api/cambios-motor', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            // 4. Enviar al backend
+            try {
+                const res = await fetch('/api/cambios-motor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-            if (res.ok) {
-                const texto = await res.text();
-                mensajeDiv.innerHTML = `<div class="alert alert-success">${texto}</div>`;
-                setTimeout(() => {
-                    modalMotorInstance.hide();
-                    modalInstance.hide();
-                    cargarCambiosMotor();
-                    cargarOrdenes();
-                }, 2000);
-            } else {
-                const error = await res.text();
-                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Bloqueado:</strong> ${error}</div>`;
+                if (res.ok) {
+                    const texto = await res.text();
+                    mensajeDiv.innerHTML = `<div class="alert alert-success">${texto}</div>`;
+                    setTimeout(() => {
+                        modalMotorInstance.hide();
+                        modalInstance.hide();
+                        cargarCambiosMotor();
+                        cargarOrdenes();
+                    }, 2000);
+                } else {
+                    const error = await res.text();
+                    mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Bloqueado:</strong> ${error}</div>`;
+                }
+            } catch (error) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error de conexión:</strong> No se pudo conectar con el servidor.</div>`;
             }
         }
 
@@ -1442,7 +1479,6 @@
                 return;
             }
 
-            // Reset completo del modal antes de cargar
             document.getElementById('tipo-pago').value = 'parcial';
             const inputMonto = document.getElementById('pago-monto');
             inputMonto.value = '';

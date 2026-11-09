@@ -39,7 +39,22 @@ public class ReporteController {
 
     @GetMapping("/historial-ordenes")
     public List<Map<String, Object>> historialOrdenes() {
-        String sql = "SELECT * FROM vw_HistorialOrdenes ORDER BY id_orden DESC";
+        // CORRECCIÓN: Ya no usamos la vista. Hacemos el JOIN directo para garantizar que el id_vehiculo llegue al frontend.
+        String sql = """
+            SELECT 
+                o.id_orden,
+                o.id_vehiculo,
+                c.nombre AS cliente,
+                CONCAT(v.marca, ' ', v.model) AS vehiculo,
+                v.placa,
+                m.nombre_completo AS mecanico,
+                o.estado
+            FROM OrdenesTrabajo o
+            INNER JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo
+            INNER JOIN Clientes c ON v.id_cliente = c.id_cliente
+            LEFT JOIN Mecanicos m ON o.id_mecanico_responsable = m.id_mecanico
+            ORDER BY o.id_orden DESC
+            """;
         return jdbcTemplate.queryForList(sql);
     }
 

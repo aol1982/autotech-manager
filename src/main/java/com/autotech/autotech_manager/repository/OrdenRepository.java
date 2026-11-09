@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -30,6 +31,26 @@ public class OrdenRepository {
 
     public List<OrdenTrabajo> listar() {
         return jdbc.query("SELECT * FROM OrdenesTrabajo ORDER BY fecha_ingreso DESC", mapper);
+    }
+
+    // NUEVO MÉTODO PARA REPORTES (Garantiza que el frontend reciba id_vehiculo)
+    public List<Map<String, Object>> listarDTO() {
+        String sql = """
+            SELECT 
+                o.id_orden, 
+                o.id_vehiculo, 
+                o.estado, 
+                c.nombre AS cliente, 
+                v.placa, 
+                CONCAT(v.marca, ' ', v.model) AS vehiculo,
+                m.nombre_completo AS mecanico
+            FROM OrdenesTrabajo o
+            INNER JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo
+            INNER JOIN Clientes c ON v.id_cliente = c.id_cliente
+            LEFT JOIN Mecanicos m ON o.id_mecanico_responsable = m.id_mecanico
+            ORDER BY o.fecha_ingreso DESC
+            """;
+        return jdbc.queryForList(sql);
     }
 
     public Optional<OrdenTrabajo> buscarPorId(int id) {

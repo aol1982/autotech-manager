@@ -33,7 +33,7 @@
 
     <nav id="main-navbar" class="navbar navbar-dark bg-dark mb-4">
         <div class="container d-flex justify-content-between">
-            <a class="navbar-brand fw-bold" href="#">🔧 AutoTech Manager - Taller</a>
+            <a class="navbar-brand fw-bold" href="#">AutoTech Manager - Taller</a>
             <div>
                 <span id="user-info" class="text-white me-3 fw-bold"></span>
                 <button class="btn btn-sm btn-light fw-bold" onclick="cerrarSesion()">Cerrar Sesión</button>
@@ -47,7 +47,7 @@
                 <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#ordenes" onclick="cargarOrdenes()">Órdenes y Clientes</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-nueva-orden">
-                <button class="nav-link text-primary fw-bold" data-bs-toggle="tab" data-bs-target="#nueva-orden" onclick="cargarVehiculosSelect()">Registrar Orden</button>
+                <button class="nav-link text-primary fw-bold" data-bs-toggle="tab" data-bs-target="#nueva-orden" onclick="cargarVehiculosSelect()">+ Registrar Orden</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-motores">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cambios-motor" onclick="cargarCambiosMotor()">Historial de Motores</button>
@@ -56,7 +56,7 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#presupuestos" onclick="cargarPresupuestos()">Presupuestos y Cobros</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-inventario">
-                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">Inventarios</button>
+                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">Repuestos</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-motores-inventario">
                 <button class="nav-link text-secondary fw-bold" data-bs-toggle="tab" data-bs-target="#motores-inventario" onclick="cargarMotores()">Motores</button>
@@ -222,7 +222,7 @@
                 <div class="card">
                     <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                         <span class="fw-bold">Inventario de Motores</span>
-                        <button class="btn btn-sm btn-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoMotor">Ingresar Motor</button>
+                        <button class="btn btn-sm btn-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoMotor">+ Ingresar Motor</button>
                     </div>
                     <div class="card-body bg-white">
                         <table class="table table-sm table-hover">
@@ -341,7 +341,7 @@
                 <div class="card">
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                         <span class="fw-bold">Gestión de Usuarios</span>
-                        <button class="btn btn-sm btn-success fw-bold" onclick="abrirModalUsuario()">Nuevo Usuario</button>
+                        <button class="btn btn-sm btn-success fw-bold" onclick="abrirModalUsuario()">+ Nuevo Usuario</button>
                     </div>
                     <div class="card-body bg-white">
                         <table class="table table-sm table-hover">
@@ -379,7 +379,7 @@
                     </div>
 
                     <div class="mb-4 d-flex gap-2 flex-wrap">
-                        <button id="btn-avanzar" class="btn btn-sm btn-outline-primary" onclick="avanzarEstadoModal()">Avanzar Estado ➔</button>
+                        <button id="btn-avanzar" class="btn btn-sm btn-outline-primary" onclick="avanzarEstadoModal()">Avanzar Estado</button>
                         <button id="btn-cancelar" class="btn btn-sm btn-danger" onclick="cancelarOrdenModal()">Cancelar Orden</button>
                         <a id="btn-pdf" href="#" target="_blank" class="btn btn-sm btn-dark">Cotización PDF</a>
                         <a id="btn-factura" href="#" target="_blank" class="btn btn-sm btn-success" style="display: none;">Factura PDF</a>
@@ -460,19 +460,40 @@
         </div>
     </div>
 
+    <!-- MODAL PAGOS -->
     <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold">Registrar Pago Parcial o Total</h5>
+                    <h5 class="modal-title fw-bold">Registrar Pago</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <div class="d-flex justify-content-between"><span>Total Orden:</span> <strong id="lbl-total">L. 0.00</strong></div>
+                        <div class="d-flex justify-content-between"><span>Pagado a la fecha:</span> <strong id="lbl-pagado">L. 0.00</strong></div>
+                        <hr class="my-1">
+                        <div class="d-flex justify-content-between text-danger"><span>Saldo Pendiente:</span> <strong id="lbl-saldo">L. 0.00</strong></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tipo de Pago</label>
+                        <select class="form-select" id="tipo-pago" onchange="calcularMontoPago()">
+                            <option value="parcial">Pago Parcial</option>
+                            <option value="total">Pago Total (Cancelar Saldo)</option>
+                        </select>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Monto a Pagar (L)</label>
-                        <input type="number" class="form-control" id="pago-monto" required placeholder="Ej. 500">
+                        <input type="number" class="form-control" id="pago-monto" required placeholder="Ej. 500" oninput="actualizarDiferencia()">
                     </div>
-                    <button class="btn btn-warning w-100 fw-bold text-dark" onclick="guardarPago()">Registrar Pago</button>
+
+                    <div class="alert alert-warning text-center" id="lbl-diferencia" style="display: none;">
+                        Saldo después del pago: <strong id="lbl-nuevo-saldo">L. 0.00</strong>
+                    </div>
+
+                    <button class="btn btn-warning w-100 fw-bold text-dark" id="btn-registrar-pago" onclick="guardarPago()">Registrar Pago</button>
                     <div id="mensaje-pago" class="mt-3"></div>
                 </div>
             </div>
@@ -672,6 +693,7 @@
         let clienteActivoId = null;
         let modalEditarClienteInstance = null;
         let modalVehiculosInstance = null;
+        let saldoPendienteActual = 0;
         
         let userRole = localStorage.getItem('userRole') || '';
         let userName = localStorage.getItem('userName') || ''; 
@@ -717,7 +739,7 @@
                 btnAvanzar.style.display = 'inline-block';
                 btnCancelar.style.display = 'none';
                 btnPago.style.display = 'none';
-                btnCalidad.style.display = 'inline-block';
+                btnCalidad.style.display = 'none';
                 divCajaAdmin.style.display = 'none';
                 divAdmin.style.display = 'none';
                 divMecanicoAdmin.style.display = 'none';
@@ -790,10 +812,17 @@
                         <td>${o.mecanico || 'Sin asignar'}</td>
                         <td><span class="badge ${color}">${o.estado}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="abrirModal(${JSON.stringify(o).replace(/"/g, '&quot;')})">Gestionar Orden</button>
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalPorId(${o.id_orden})">Gestionar Orden</button>
                         </td>
                     </tr>`;
             });
+        }
+
+        async function abrirModalPorId(idOrden) {
+            const res = await fetch('/api/reportes/historial-ordenes');
+            const data = await res.json();
+            const orden = data.find(o => o.id_orden === idOrden);
+            if (orden) abrirModal(orden);
         }
 
         async function guardarOrden(event) {
@@ -840,12 +869,19 @@
                         <td>${c.telefono}</td>
                         <td>${badge}</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g, '&quot;')})">Editar</button>
+                            <button class="btn btn-sm btn-info" onclick="abrirEditarClientePorId(${c.id_cliente})">Editar</button>
                             <button class="btn btn-sm btn-primary" onclick="verVehiculos(${c.id_cliente})">Vehículos</button>
                             ${btnDesactivar}
                         </td>
                     </tr>`;
             });
+        }
+
+        async function abrirEditarClientePorId(id) {
+            const res = await fetch('/api/reportes/clientes');
+            const data = await res.json();
+            const cliente = data.find(c => c.id_cliente === id);
+            if (cliente) abrirEditarCliente(cliente);
         }
 
         function abrirEditarCliente(cliente) {
@@ -1067,7 +1103,9 @@
                 document.getElementById('form-nuevo-motor').reset();
                 cargarMotores();
                 setTimeout(() => {
-                    document.querySelector('[data-bs-dismiss="modal"]').click();
+                    const modalEl = document.getElementById('modalNuevoMotor');
+                    const inst = bootstrap.Modal.getInstance(modalEl);
+                    if (inst) inst.hide();
                 }, 1500);
             } else {
                 mensajeDiv.innerHTML = `<div class="alert alert-danger">Error al guardar.</div>`;
@@ -1095,6 +1133,7 @@
                 btnFactura.href = `/api/pdf/factura/${orden.id_orden}`;
             } else {
                 btnFactura.style.display = 'none';
+                btnFactura.href = '#';
             }
 
             const btnCalidad = document.getElementById('btn-calidad');
@@ -1102,6 +1141,7 @@
             
             btnCalidad.style.display = 'none';
             btnGarantia.style.display = 'none';
+            btnGarantia.href = '#';
 
             if (orden.estado !== 'Finalizada' && orden.estado !== 'Cancelada') {
                 const resDetalles = await fetch(`/api/detalles/${orden.id_orden}`);
@@ -1121,6 +1161,14 @@
                 else if (orden.mecanico === 'María José Martínez') selectMec.value = "2";
                 else if (orden.mecanico === 'Juan Carlos López') selectMec.value = "3";
             }
+
+            // Asegúrate de reiniciar el select de tipo de pago y estado del modal de pago
+            document.getElementById('tipo-pago').value = 'parcial';
+            document.getElementById('pago-monto').readOnly = false;
+            document.getElementById('pago-monto').value = '';
+            document.getElementById('lbl-diferencia').style.display = 'none';
+            document.getElementById('mensaje-pago').innerHTML = '';
+            document.getElementById('btn-registrar-pago').disabled = false;
 
             cargarDetallesOrden(orden.id_orden);
             cargarCheckboxesServicios();
@@ -1388,43 +1436,157 @@
             }
         }
 
-        function abrirModalPago() {
+        async function abrirModalPago() {
             if (ordenActivaEstado === 'Cancelada') {
                 alert("No se puede registrar pago a una orden cancelada.");
                 return;
             }
-            document.getElementById('pago-monto').value = '';
+
+            // Reset completo del modal antes de cargar
+            document.getElementById('tipo-pago').value = 'parcial';
+            const inputMonto = document.getElementById('pago-monto');
+            inputMonto.value = '';
+            inputMonto.readOnly = false;
             document.getElementById('mensaje-pago').innerHTML = '';
-            
+            document.getElementById('lbl-diferencia').style.display = 'none';
+            document.getElementById('btn-registrar-pago').disabled = false;
+
+            try {
+                const res = await fetch(`/api/detalles/saldo/${ordenActivaId}`);
+                if (!res.ok) {
+                    const error = await res.text();
+                    alert("Error: " + error);
+                    return;
+                }
+                const data = await res.json();
+                saldoPendienteActual = Number(data.saldo) || 0;
+
+                document.getElementById('lbl-total').innerText = `L. ${(Number(data.total) || 0).toFixed(2)}`;
+                document.getElementById('lbl-pagado').innerText = `L. ${(Number(data.pagado) || 0).toFixed(2)}`;
+                document.getElementById('lbl-saldo').innerText = `L. ${saldoPendienteActual.toFixed(2)}`;
+
+                if (saldoPendienteActual <= 0) {
+                    document.getElementById('mensaje-pago').innerHTML =
+                        `<div class="alert alert-success">La orden ya está pagada en su totalidad.</div>`;
+                    document.getElementById('btn-registrar-pago').disabled = true;
+                }
+            } catch (e) {
+                alert("Error al cargar los datos de pago.");
+                return;
+            }
+
             if (!modalPagoInstance) {
                 modalPagoInstance = new bootstrap.Modal(document.getElementById('modalPago'));
             }
             modalPagoInstance.show();
         }
 
-        async function guardarPago() {
-            const monto = document.getElementById('pago-monto').value;
-            if (!monto || parseFloat(monto) <= 0) {
-                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-danger">Escribe un monto válido.</div>`;
+        function calcularMontoPago() {
+            const tipo = document.getElementById('tipo-pago').value;
+            const inputMonto = document.getElementById('pago-monto');
+            const lblDiferencia = document.getElementById('lbl-diferencia');
+            const lblNuevoSaldo = document.getElementById('lbl-nuevo-saldo');
+
+            if (tipo === 'total') {
+                inputMonto.value = saldoPendienteActual.toFixed(2);
+                inputMonto.readOnly = true;
+                lblNuevoSaldo.innerText = 'L. 0.00';
+                lblDiferencia.style.display = 'block';
+            } else {
+                inputMonto.value = '';
+                inputMonto.readOnly = false;
+                lblDiferencia.style.display = 'none';
+            }
+            validarBotonPago();
+        }
+
+        function actualizarDiferencia() {
+            const tipo = document.getElementById('tipo-pago').value;
+            if (tipo === 'total') return;
+
+            let monto = parseFloat(document.getElementById('pago-monto').value) || 0;
+            if (monto < 0) monto = 0;
+
+            const lblDiferencia = document.getElementById('lbl-diferencia');
+            const lblNuevoSaldo = document.getElementById('lbl-nuevo-saldo');
+
+            if (saldoPendienteActual <= 0) {
+                lblNuevoSaldo.innerText = "La orden ya está pagada";
+                lblDiferencia.style.display = 'block';
+                validarBotonPago();
                 return;
             }
 
-            const res = await fetch('/api/detalles/registrar-pago', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_orden: ordenActivaId, monto: parseFloat(monto) })
-            });
+            const nuevoSaldo = saldoPendienteActual - monto;
 
-            if (res.ok) {
-                const texto = await res.text();
-                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-success">${texto}</div>`;
-                setTimeout(() => {
-                    modalPagoInstance.hide();
-                    cargarPresupuestos();
-                }, 1500);
+            if (nuevoSaldo >= 0) {
+                lblNuevoSaldo.innerText = `L. ${nuevoSaldo.toFixed(2)}`;
             } else {
-                const error = await res.text();
-                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-danger">${error}</div>`;
+                lblNuevoSaldo.innerText = "El monto excede el saldo";
+            }
+            lblDiferencia.style.display = 'block';
+            validarBotonPago();
+        }
+
+        function validarBotonPago() {
+            const btn = document.getElementById('btn-registrar-pago');
+            if (!btn) return;
+            const monto = parseFloat(document.getElementById('pago-monto').value) || 0;
+            if (saldoPendienteActual <= 0) {
+                btn.disabled = true;
+                return;
+            }
+            btn.disabled = (monto <= 0 || monto > saldoPendienteActual);
+        }
+
+        async function guardarPago() {
+            const monto = parseFloat(document.getElementById('pago-monto').value);
+            const tipo = document.getElementById('tipo-pago').value;
+            const mensajeDiv = document.getElementById('mensaje-pago');
+
+            if (!monto || monto <= 0) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">Escribe un monto válido.</div>`;
+                return;
+            }
+            if (saldoPendienteActual <= 0) {
+                mensajeDiv.innerHTML = `<div class="alert alert-success">La orden ya está pagada.</div>`;
+                return;
+            }
+            if (monto > saldoPendienteActual) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">El monto excede el saldo pendiente (L. ${saldoPendienteActual.toFixed(2)}).</div>`;
+                return;
+            }
+            if (tipo === 'total' && Math.abs(monto - saldoPendienteActual) > 0.01) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">Para pago total debe cancelar exactamente L. ${saldoPendienteActual.toFixed(2)}.</div>`;
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/detalles/registrar-pago', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_orden: ordenActivaId, monto: monto })
+                });
+
+                if (res.ok) {
+                    const texto = await res.text();
+                    mensajeDiv.innerHTML = `<div class="alert alert-success">${texto}</div>`;
+
+                    const nuevoSaldo = saldoPendienteActual - monto;
+                    document.getElementById('lbl-nuevo-saldo').innerText = `L. ${Math.max(0, nuevoSaldo).toFixed(2)}`;
+                    document.getElementById('lbl-diferencia').style.display = 'block';
+
+                    setTimeout(() => {
+                        if (modalPagoInstance) modalPagoInstance.hide();
+                        cargarPresupuestos();
+                        cargarOrdenes();
+                    }, 1500);
+                } else {
+                    const error = await res.text();
+                    mensajeDiv.innerHTML = `<div class="alert alert-danger">${error}</div>`;
+                }
+            } catch (e) {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger">Error de conexión al registrar el pago.</div>`;
             }
         }
 
@@ -1460,12 +1622,19 @@
                         <td>${u.rol}</td>
                         <td>${badge}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="editarUsuario(${JSON.stringify(u).replace(/"/g, '&quot;')})">Editar</button>
+                            <button class="btn btn-sm btn-primary" onclick="editarUsuarioPorId(${u.id_usuario})">Editar</button>
                             <button class="btn btn-sm btn-warning" onclick="toggleEstadoUsuario(${u.id_usuario})">${u.activo === 1 ? 'Desactivar' : 'Activar'}</button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        async function editarUsuarioPorId(id) {
+            const res = await fetch('/api/usuarios');
+            const data = await res.json();
+            const user = data.find(u => u.id_usuario === id);
+            if (user) editarUsuario(user);
         }
 
         function abrirModalUsuario() {

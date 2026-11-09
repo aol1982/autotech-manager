@@ -26,7 +26,16 @@ public class DetalleOrdenController {
     @GetMapping("/{idOrden}")
     public List<Map<String, Object>> listarDetalles(@PathVariable int idOrden) {
         String sql = """
-            SELECT d.id_detalle, d.id_servicio, s.nombre AS servicio, d.costo_aplicado 
+            SELECT d.id_detalle, d.id_servicio, 
+                   CASE 
+                       WHEN s.nombre = 'Repuesto / Material' THEN 
+                           (SELECT TOP 1 r.nombre FROM Repuestos r 
+                            INNER JOIN MovimientosInventario m ON r.id_repuesto = m.id_repuesto 
+                            WHERE m.id_orden = d.id_orden AND m.tipo_movimiento = 'SALIDA' 
+                            AND r.costo = d.costo_aplicado)
+                       ELSE s.nombre 
+                   END AS servicio, 
+                   d.costo_aplicado 
             FROM DetalleOrden d
             INNER JOIN Servicios s ON d.id_servicio = s.id_servicio
             WHERE d.id_orden = ?
@@ -82,8 +91,7 @@ public class DetalleOrdenController {
             jdbc.update("UPDATE Repuestos SET stock_actual = stock_actual - 1 WHERE id_repuesto = ?", idRepuesto);
             jdbc.update("INSERT INTO MovimientosInventario (id_repuesto, id_orden, tipo_movimiento, cantidad, fecha) VALUES (?, ?, 'SALIDA', 1, GETDATE())", idRepuesto, idOrden);
 
-            Integer idServicioGenerico = jdbc.query("SELECT TOP 1 id_servicio FROM Servicios ORDER BY id_servicio ASC", 
-                rs -> rs.next() ? rs.getInt("id_servicio") : null);
+            Integer idServicioGenerico = jdbc.queryForObject("SELECT id_servicio FROM Servicios WHERE nombre = 'Repuesto / Material'", Integer.class);
 
             jdbc.update("INSERT INTO DetalleOrden (id_orden, id_servicio, costo_aplicado) VALUES (?, ?, ?)", idOrden, idServicioGenerico, costo);
             actualizarPresupuesto(idOrden);
@@ -91,6 +99,30 @@ public class DetalleOrdenController {
             return ResponseEntity.ok("Repuesto agregado y stock actualizado.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al pedir el repuesto: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/saldo/{idOrden}")
+    public ResponseEntity<?> obtenerSaldo(@PathVariable int idOrden) {
+        try {
+            List<Map<String, Object>> presupuestos = jdbc.queryForList("SELECT total FROM Presupuestos WHERE id_orden = ?", idOrden);
+            if (presupuestos.isEmpty()) {
+                return ResponseEntity.badRequest().body("La orden no tiene un presupuesto generado.");
+            }
+            double totalPresupuesto = ((Number) presupuestos.get(0).get("total")).doubleValue();
+
+            Double totalPagadoObj = jdbc.queryForObject("SELECT ISNULL(SUM(monto), 0) FROM Pagos WHERE id_orden = ?", Double.class, idOrden);
+            double totalPagado = totalPagadoObj != null ? totalPagadoObj : 0.0;
+
+            double saldoPendiente = totalPresupuesto - totalPagado;
+
+            return ResponseEntity.ok(Map.of(
+                "total", totalPresupuesto,
+                "pagado", totalPagado,
+                "saldo", saldoPendiente
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al obtener saldo: " + e.getMessage());
         }
     }
 

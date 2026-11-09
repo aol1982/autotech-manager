@@ -95,4 +95,20 @@ public class ReporteController {
             """;
         return jdbcTemplate.queryForList(sql);
     }
+
+    @GetMapping("/clientes")
+    public List<Map<String, Object>> listarClientes() {
+        return jdbcTemplate.queryForList("SELECT * FROM Clientes ORDER BY id_cliente DESC");
+    }
+
+    @GetMapping("/vehiculos")
+    public List<Map<String, Object>> listarVehiculos() {
+        String sql = """
+            SELECT v.id_vehiculo, v.placa, v.marca, v.model, c.nombre AS cliente
+            FROM Vehiculos v
+            INNER JOIN Clientes c ON v.id_cliente = c.id_cliente
+            ORDER BY v.id_vehiculo ASC
+            """;
+        return jdbcTemplate.queryForList(sql);
+    }
 }

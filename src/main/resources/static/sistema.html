@@ -47,7 +47,7 @@
                 <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#ordenes" onclick="cargarOrdenes()">Órdenes y Clientes</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-nueva-orden">
-                <button class="nav-link text-primary fw-bold" data-bs-toggle="tab" data-bs-target="#nueva-orden" onclick="cargarVehiculosSelect()">+ Registrar Orden</button>
+                <button class="nav-link text-primary fw-bold" data-bs-toggle="tab" data-bs-target="#nueva-orden" onclick="cargarVehiculosSelect()">Registrar Orden</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-motores">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cambios-motor" onclick="cargarCambiosMotor()">Historial de Motores</button>
@@ -56,19 +56,19 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#presupuestos" onclick="cargarPresupuestos()">Presupuestos y Cobros</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-inventario">
-                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">📦 Repuestos</button>
+                <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#inventario" onclick="cargarInventario()">Inventarios</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-motores-inventario">
-                <button class="nav-link text-secondary fw-bold" data-bs-toggle="tab" data-bs-target="#motores-inventario" onclick="cargarMotores()">🔩 Motores</button>
+                <button class="nav-link text-secondary fw-bold" data-bs-toggle="tab" data-bs-target="#motores-inventario" onclick="cargarMotores()">Motores</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-nuevo-cliente">
                 <button class="nav-link text-success fw-bold" data-bs-toggle="tab" data-bs-target="#nuevo-cliente">+ Registrar Cliente</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-clientes">
-                <button class="nav-link text-info fw-bold" data-bs-toggle="tab" data-bs-target="#clientes" onclick="cargarClientes()">👥 Clientes</button>
+                <button class="nav-link text-info fw-bold" data-bs-toggle="tab" data-bs-target="#clientes" onclick="cargarClientes()">Clientes</button>
             </li>
             <li class="nav-item" role="presentation" id="tab-usuarios" style="display: none;">
-                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">⚙️ Usuarios</button>
+                <button class="nav-link text-dark fw-bold" data-bs-toggle="tab" data-bs-target="#usuarios" onclick="cargarUsuarios()">Usuarios</button>
             </li>
         </ul>
 
@@ -222,7 +222,7 @@
                 <div class="card">
                     <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                         <span class="fw-bold">Inventario de Motores</span>
-                        <button class="btn btn-sm btn-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoMotor">+ Ingresar Motor</button>
+                        <button class="btn btn-sm btn-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoMotor">Ingresar Motor</button>
                     </div>
                     <div class="card-body bg-white">
                         <table class="table table-sm table-hover">
@@ -341,7 +341,7 @@
                 <div class="card">
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                         <span class="fw-bold">Gestión de Usuarios</span>
-                        <button class="btn btn-sm btn-success fw-bold" onclick="abrirModalUsuario()">+ Nuevo Usuario</button>
+                        <button class="btn btn-sm btn-success fw-bold" onclick="abrirModalUsuario()">Nuevo Usuario</button>
                     </div>
                     <div class="card-body bg-white">
                         <table class="table table-sm table-hover">
@@ -381,12 +381,12 @@
                     <div class="mb-4 d-flex gap-2 flex-wrap">
                         <button id="btn-avanzar" class="btn btn-sm btn-outline-primary" onclick="avanzarEstadoModal()">Avanzar Estado ➔</button>
                         <button id="btn-cancelar" class="btn btn-sm btn-danger" onclick="cancelarOrdenModal()">Cancelar Orden</button>
-                        <a id="btn-pdf" href="#" target="_blank" class="btn btn-sm btn-dark">📄 Cotización PDF</a>
-                        <a id="btn-factura" href="#" target="_blank" class="btn btn-sm btn-success" style="display: none;">💵 Factura PDF</a>
-                        <button id="btn-cambio-motor" class="btn btn-sm btn-info text-dark fw-bold" onclick="abrirModalMotor()">🔧 Cambio de Motor</button>
-                        <button id="btn-pago" class="btn btn-sm btn-warning text-dark fw-bold" onclick="abrirModalPago()">💰 Registrar Pago</button>
-                        <button id="btn-calidad" class="btn btn-sm btn-success text-white fw-bold" onclick="aprobarCalidad()">✅ Aprobar Calidad</button>
-                        <a id="btn-garantia" href="#" target="_blank" class="btn btn-sm btn-secondary text-white fw-bold" style="display: none;">📜 Descargar Garantía</a>
+                        <a id="btn-pdf" href="#" target="_blank" class="btn btn-sm btn-dark">Cotización PDF</a>
+                        <a id="btn-factura" href="#" target="_blank" class="btn btn-sm btn-success" style="display: none;">Factura PDF</a>
+                        <button id="btn-cambio-motor" class="btn btn-sm btn-info text-dark fw-bold" onclick="abrirModalMotor()">Cambio de Motor</button>
+                        <button id="btn-pago" class="btn btn-sm btn-warning text-dark fw-bold" onclick="abrirModalPago()">Registrar Pago</button>
+                        <button id="btn-calidad" class="btn btn-sm btn-success text-white fw-bold" onclick="aprobarCalidad()">Aprobar Calidad</button>
+                        <a id="btn-garantia" href="#" target="_blank" class="btn btn-sm btn-secondary text-white fw-bold" style="display: none;">Descargar Garantía</a>
                     </div>
 
                     <div id="admin-mecanico-actions" class="card mb-3 bg-light border-primary" style="display: none;">

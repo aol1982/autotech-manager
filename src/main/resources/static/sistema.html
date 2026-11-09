@@ -73,7 +73,6 @@
         </ul>
 
         <div class="tab-content">
-            <!-- PESTAÑA 1: ÓRDENES -->
             <div class="tab-pane fade show active" id="ordenes">
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -101,7 +100,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 2: NUEVA ORDEN -->
             <div class="tab-pane fade" id="nueva-orden">
                 <div class="card">
                     <div class="card-header bg-primary text-white fw-bold">Registrar Orden de Trabajo</div>
@@ -142,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 3: HISTORIAL MOTORES -->
             <div class="tab-pane fade" id="cambios-motor">
                 <div class="card">
                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
@@ -168,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 4: PRESUPUESTOS -->
             <div class="tab-pane fade" id="presupuestos">
                 <div class="card">
                     <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
@@ -197,7 +193,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 5: REPUESTOS -->
             <div class="tab-pane fade" id="inventario">
                 <div class="card">
                     <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
@@ -223,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 6: INVENTARIO DE MOTORES -->
             <div class="tab-pane fade" id="motores-inventario">
                 <div class="card">
                     <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
@@ -246,7 +240,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 7: NUEVO CLIENTE -->
             <div class="tab-pane fade" id="nuevo-cliente">
                 <div class="card">
                     <div class="card-header bg-success text-white fw-bold">Registrar Nuevo Cliente y Vehículo</div>
@@ -321,7 +314,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 8: CLIENTES -->
             <div class="tab-pane fade" id="clientes">
                 <div class="card">
                     <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
@@ -335,9 +327,8 @@
                                     <th>ID</th>
                                     <th>Nombre / Empresa</th>
                                     <th>Teléfono</th>
-                                    <th>Correo</th>
-                                    <th>Dirección</th>
                                     <th>Estado</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-clientes"></tbody>
@@ -346,7 +337,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 9: USUARIOS -->
             <div class="tab-pane fade" id="usuarios">
                 <div class="card">
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
@@ -373,7 +363,7 @@
         </div>
     </div>
 
-    <!-- MODAL GESTIÓN DE ORDEN -->
+    <!-- MODALES -->
     <div class="modal fade" id="modalOrden" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -389,12 +379,15 @@
                         <strong>Estado Actual:</strong> <span id="modal-estado" class="badge bg-warning text-dark"></span>
                     </div>
 
-                    <div class="mb-4 d-flex gap-2">
+                    <div class="mb-4 d-flex gap-2 flex-wrap">
                         <button id="btn-avanzar" class="btn btn-sm btn-outline-primary" onclick="avanzarEstadoModal()">Avanzar Estado ➔</button>
                         <button id="btn-cancelar" class="btn btn-sm btn-danger" onclick="cancelarOrdenModal()">Cancelar Orden</button>
                         <a id="btn-pdf" href="#" target="_blank" class="btn btn-sm btn-dark">📄 Cotización PDF</a>
                         <a id="btn-factura" href="#" target="_blank" class="btn btn-sm btn-success" style="display: none;">💵 Factura PDF</a>
                         <button id="btn-cambio-motor" class="btn btn-sm btn-info text-dark fw-bold" onclick="abrirModalMotor()">🔧 Cambio de Motor</button>
+                        <button id="btn-pago" class="btn btn-sm btn-warning text-dark fw-bold" onclick="abrirModalPago()">💰 Registrar Pago</button>
+                        <button id="btn-calidad" class="btn btn-sm btn-success text-white fw-bold" onclick="aprobarCalidad()">✅ Aprobar Calidad</button>
+                        <a id="btn-garantia" href="#" target="_blank" class="btn btn-sm btn-secondary text-white fw-bold" style="display: none;">📜 Descargar Garantía</a>
                     </div>
 
                     <div id="admin-mecanico-actions" class="card mb-3 bg-light border-primary" style="display: none;">
@@ -469,7 +462,27 @@
         </div>
     </div>
 
-    <!-- MODAL CAMBIO DE MOTOR -->
+    <!-- MODAL PAGOS -->
+    <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">Registrar Pago Parcial o Total</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Monto a Pagar (L)</label>
+                        <input type="number" class="form-control" id="pago-monto" required placeholder="Ej. 500">
+                    </div>
+                    <button class="btn btn-warning w-100 fw-bold text-dark" onclick="guardarPago()">Registrar Pago</button>
+                    <div id="mensaje-pago" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MOTOR -->
     <div class="modal fade" id="modalMotor" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -574,6 +587,88 @@
         </div>
     </div>
 
+    <!-- MODAL EDITAR CLIENTE -->
+    <div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-dark">
+                    <h5 class="modal-title fw-bold">Editar Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-id-cliente">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre</label>
+                        <input type="text" class="form-control" id="edit-nombre">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Teléfono</label>
+                        <input type="text" class="form-control" id="edit-telefono">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo</label>
+                        <input type="email" class="form-control" id="edit-correo">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Dirección</label>
+                        <input type="text" class="form-control" id="edit-direccion">
+                    </div>
+                    <button class="btn btn-info w-100 fw-bold" onclick="guardarEdicionCliente()">Guardar Cambios</button>
+                    <div id="mensaje-edit-cliente" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VEHICULOS CLIENTE -->
+    <div class="modal fade" id="modalVehiculosCliente" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Vehículos del Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Año</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-vehiculos-cliente"></tbody>
+                    </table>
+                    <hr>
+                    <h6 class="fw-bold">Agregar Nuevo Vehículo</h6>
+                    <form id="form-nuevo-vehiculo" onsubmit="agregarVehiculoCliente(event)">
+                        <div class="row mb-2">
+                            <div class="col-4"><input type="text" class="form-control form-control-sm" id="new-placa" placeholder="Placa" required></div>
+                            <div class="col-4"><input type="text" class="form-control form-control-sm" id="new-vin" placeholder="VIN" required></div>
+                            <div class="col-4"><input type="text" class="form-control form-control-sm" id="new-marca" placeholder="Marca" required></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4"><input type="text" class="form-control form-control-sm" id="new-model" placeholder="Modelo" required></div>
+                            <div class="col-4"><input type="number" class="form-control form-control-sm" id="new-anio" placeholder="Año" required></div>
+                            <div class="col-4"><input type="text" class="form-control form-control-sm" id="new-color" placeholder="Color" required></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><input type="number" class="form-control form-control-sm" id="new-km" placeholder="Kilometraje" required></div>
+                            <div class="col-6">
+                                <select class="form-select form-select-sm" id="new-combustible">
+                                    <option value="Gasolina">Gasolina</option>
+                                    <option value="Diesel">Diesel</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary w-100 mt-2">Agregar Vehículo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let ordenActivaId = null;
@@ -581,6 +676,10 @@
         let modalInstance = null;
         let modalUserInstance = null;
         let modalMotorInstance = null;
+        let modalPagoInstance = null;
+        let clienteActivoId = null;
+        let modalEditarClienteInstance = null;
+        let modalVehiculosInstance = null;
         
         let userRole = localStorage.getItem('userRole') || '';
         let userName = localStorage.getItem('userName') || ''; 
@@ -605,12 +704,16 @@
             const divCajaAdmin = document.getElementById('admin-caja-actions');
             const divAdmin = document.getElementById('admin-only-actions');
             const divMecanicoAdmin = document.getElementById('admin-mecanico-actions');
+            const btnPago = document.getElementById('btn-pago');
+            const btnCalidad = document.getElementById('btn-calidad');
 
             if (userRole === 'Cajero') {
                 navbar.style.backgroundColor = '#0d6efd';
                 mainContainer.style.backgroundColor = 'rgba(255, 193, 7, 0.7)';
                 btnAvanzar.style.display = 'none';
                 btnCancelar.style.display = 'none';
+                btnPago.style.display = 'inline-block';
+                btnCalidad.style.display = 'none';
                 divCajaAdmin.style.display = 'block';
                 divAdmin.style.display = 'none';
                 divMecanicoAdmin.style.display = 'none';
@@ -621,6 +724,8 @@
                 mainContainer.style.backgroundColor = 'rgba(253, 126, 20, 0.75)';
                 btnAvanzar.style.display = 'inline-block';
                 btnCancelar.style.display = 'none';
+                btnPago.style.display = 'none';
+                btnCalidad.style.display = 'inline-block';
                 divCajaAdmin.style.display = 'none';
                 divAdmin.style.display = 'none';
                 divMecanicoAdmin.style.display = 'none';
@@ -639,6 +744,8 @@
                 mainContainer.style.backgroundColor = 'rgba(222, 226, 230, 0.85)';
                 btnAvanzar.style.display = 'inline-block';
                 btnCancelar.style.display = 'inline-block';
+                btnPago.style.display = 'inline-block';
+                btnCalidad.style.display = 'inline-block';
                 divCajaAdmin.style.display = 'block';
                 divAdmin.style.display = 'block';
                 divMecanicoAdmin.style.display = 'block';
@@ -732,49 +839,117 @@
             
             data.forEach(c => {
                 let badge = c.activo === 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+                let btnDesactivar = c.activo === 1 ? `<button class="btn btn-sm btn-danger" onclick="desactivarCliente(${c.id_cliente})">Desactivar</button>` : '';
+                
                 tbody.innerHTML += `
                     <tr class="bg-white">
                         <td><strong>#${c.id_cliente}</strong></td>
                         <td>${c.nombre}</td>
                         <td>${c.telefono}</td>
-                        <td>${c.correo || 'N/A'}</td>
-                        <td>${c.direccion || 'N/A'}</td>
                         <td>${badge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g, '&quot;')})">Editar</button>
+                            <button class="btn btn-sm btn-primary" onclick="verVehiculos(${c.id_cliente})">Vehículos</button>
+                            ${btnDesactivar}
+                        </td>
                     </tr>`;
             });
         }
 
-        async function guardarCliente(event) {
-            event.preventDefault();
-            const clienteData = {
-                nombre: document.getElementById('nombre').value,
-                telefono: document.getElementById('telefono').value,
-                correo: document.getElementById('correo').value,
-                direccion: document.getElementById('direccion').value,
-                placa: document.getElementById('placa').value,
-                vin_chasis: document.getElementById('vin_chasis').value,
-                marca: document.getElementById('marca').value,
-                model: document.getElementById('model').value,
-                anio: parseInt(document.getElementById('anio').value),
-                color: document.getElementById('color').value,
-                kilometraje: parseInt(document.getElementById('kilometraje_cliente').value),
-                combustible: document.getElementById('combustible').value
+        function abrirEditarCliente(cliente) {
+            document.getElementById('edit-id-cliente').value = cliente.id_cliente;
+            document.getElementById('edit-nombre').value = cliente.nombre;
+            document.getElementById('edit-telefono').value = cliente.telefono;
+            document.getElementById('edit-correo').value = cliente.correo || '';
+            document.getElementById('edit-direccion').value = cliente.direccion || '';
+            document.getElementById('mensaje-edit-cliente').innerHTML = '';
+
+            if (!modalEditarClienteInstance) {
+                modalEditarClienteInstance = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
+            }
+            modalEditarClienteInstance.show();
+        }
+
+        async function guardarEdicionCliente() {
+            const id = document.getElementById('edit-id-cliente').value;
+            const data = {
+                nombre: document.getElementById('edit-nombre').value,
+                telefono: document.getElementById('edit-telefono').value,
+                correo: document.getElementById('edit-correo').value,
+                direccion: document.getElementById('edit-direccion').value
             };
 
-            const res = await fetch('/api/clientes', {
-                method: 'POST',
+            const res = await fetch(`/api/clientes/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(clienteData)
+                body: JSON.stringify(data)
             });
 
             if (res.ok) {
-                document.getElementById('mensaje-cliente').innerHTML = `<div class="alert alert-success">Cliente y Vehículo guardados correctamente.</div>`;
-                document.getElementById('form-cliente').reset();
-                cargarVehiculosSelect();
-                cargarClientes();
+                document.getElementById('mensaje-edit-cliente').innerHTML = `<div class="alert alert-success">Cliente actualizado.</div>`;
+                setTimeout(() => {
+                    modalEditarClienteInstance.hide();
+                    cargarClientes();
+                }, 1500);
             } else {
-                const error = await res.text();
-                document.getElementById('mensaje-cliente').innerHTML = `<div class="alert alert-danger">${error}</div>`;
+                document.getElementById('mensaje-edit-cliente').innerHTML = `<div class="alert alert-danger">Error al actualizar.</div>`;
+            }
+        }
+
+        async function desactivarCliente(id) {
+            if (!confirm("¿Estás seguro de desactivar este cliente?")) return;
+            const res = await fetch(`/api/clientes/${id}/desactivar`, { method: 'PUT' });
+            if (res.ok) cargarClientes();
+        }
+
+        async function verVehiculos(idCliente) {
+            clienteActivoId = idCliente;
+            const res = await fetch(`/api/clientes/${idCliente}/vehiculos`);
+            const data = await res.json();
+            
+            const tbody = document.getElementById('tabla-vehiculos-cliente');
+            tbody.innerHTML = data.length === 0 ? '<tr><td colspan="4">No tiene vehículos registrados.</td></tr>' : '';
+            
+            data.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${v.placa}</td>
+                        <td>${v.marca}</td>
+                        <td>${v.model}</td>
+                        <td>${v.anio}</td>
+                    </tr>`;
+            });
+
+            document.getElementById('form-nuevo-vehiculo').reset();
+            if (!modalVehiculosInstance) {
+                modalVehiculosInstance = new bootstrap.Modal(document.getElementById('modalVehiculosCliente'));
+            }
+            modalVehiculosInstance.show();
+        }
+
+        async function agregarVehiculoCliente(event) {
+            event.preventDefault();
+            const data = {
+                placa: document.getElementById('new-placa').value,
+                vin_chasis: document.getElementById('new-vin').value,
+                marca: document.getElementById('new-marca').value,
+                model: document.getElementById('new-model').value,
+                anio: parseInt(document.getElementById('new-anio').value),
+                color: document.getElementById('new-color').value,
+                kilometraje: parseInt(document.getElementById('new-km').value),
+                combustible: document.getElementById('new-combustible').value
+            };
+
+            const res = await fetch(`/api/clientes/${clienteActivoId}/vehiculos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                verVehiculos(clienteActivoId);
+            } else {
+                alert("Error al agregar vehículo.");
             }
         }
 
@@ -930,6 +1105,18 @@
                 btnFactura.style.display = 'none';
             }
 
+            const btnCalidad = document.getElementById('btn-calidad');
+            const btnGarantia = document.getElementById('btn-garantia');
+            
+            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada') {
+                btnCalidad.style.display = 'none';
+                btnGarantia.style.display = 'none';
+            } else {
+                btnCalidad.style.display = 'inline-block';
+                btnGarantia.style.display = 'inline-block';
+                btnGarantia.href = `/api/pdf/garantia/${orden.id_orden}`;
+            }
+
             const selectMec = document.getElementById('select-mecanico');
             if (selectMec) {
                 if (orden.mecanico === 'Carlos Roberto Hernández') selectMec.value = "1";
@@ -1028,7 +1215,8 @@
                 document.getElementById('repuesto-costo').value = '';
                 cargarDetallesOrden(ordenActivaId);
             } else {
-                alert("Error al pedir el repuesto.");
+                const error = await res.text();
+                alert(error);
             }
         }
 
@@ -1082,7 +1270,8 @@
                 modalInstance.hide();
                 cargarOrdenes();
             } else {
-                alert("Error al cambiar el estado.");
+                const error = await res.text();
+                alert(error);
             }
         }
 
@@ -1109,7 +1298,8 @@
                 modalInstance.hide();
                 cargarOrdenes();
             } else {
-                alert("Error al asignar mecánico.");
+                const error = await res.text();
+                alert(error);
             }
         }
 
@@ -1140,6 +1330,9 @@
 
         async function guardarCambioMotor(event) {
             event.preventDefault();
+            const mensajeDiv = document.getElementById('mensaje-motor');
+            mensajeDiv.innerHTML = '';
+
             const data = {
                 id_orden: ordenActivaId,
                 id_vehiculo: parseInt(document.getElementById('modal-id-vehiculo').value),
@@ -1149,13 +1342,17 @@
                 resultados_pruebas: document.getElementById('resultados_pruebas').value
             };
 
+            if (!data.serie_motor_anterior || data.serie_motor_anterior.trim() === "") {
+                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> Debe ingresar la serie del motor anterior.</div>`;
+                return;
+            }
+
             const res = await fetch('/api/cambios-motor', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            const mensajeDiv = document.getElementById('mensaje-motor');
             if (res.ok) {
                 const texto = await res.text();
                 mensajeDiv.innerHTML = `<div class="alert alert-success">${texto}</div>`;
@@ -1167,7 +1364,64 @@
                 }, 2000);
             } else {
                 const error = await res.text();
-                mensajeDiv.innerHTML = `<div class="alert alert-danger">${error}</div>`;
+                mensajeDiv.innerHTML = `<div class="alert alert-danger"><strong>Bloqueado:</strong> ${error}</div>`;
+            }
+        }
+
+        function abrirModalPago() {
+            if (ordenActivaEstado === 'Cancelada') {
+                alert("No se puede registrar pago a una orden cancelada.");
+                return;
+            }
+            document.getElementById('pago-monto').value = '';
+            document.getElementById('mensaje-pago').innerHTML = '';
+            
+            if (!modalPagoInstance) {
+                modalPagoInstance = new bootstrap.Modal(document.getElementById('modalPago'));
+            }
+            modalPagoInstance.show();
+        }
+
+        async function guardarPago() {
+            const monto = document.getElementById('pago-monto').value;
+            if (!monto || parseFloat(monto) <= 0) {
+                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-danger">Escribe un monto válido.</div>`;
+                return;
+            }
+
+            const res = await fetch('/api/detalles/registrar-pago', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_orden: ordenActivaId, monto: parseFloat(monto) })
+            });
+
+            if (res.ok) {
+                const texto = await res.text();
+                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-success">${texto}</div>`;
+                setTimeout(() => {
+                    modalPagoInstance.hide();
+                    cargarPresupuestos();
+                }, 1500);
+            } else {
+                const error = await res.text();
+                document.getElementById('mensaje-pago').innerHTML = `<div class="alert alert-danger">${error}</div>`;
+            }
+        }
+
+        async function aprobarCalidad() {
+            if (!confirm("¿Estás seguro de aprobar el control de calidad? Esto permitirá finalizar la orden.")) return;
+
+            const res = await fetch('/api/cambios-motor/control-calidad', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_orden: ordenActivaId })
+            });
+
+            if (res.ok) {
+                alert("Control de calidad aprobado exitosamente. Ya puedes avanzar la orden a 'Finalizada'.");
+            } else {
+                const error = await res.text();
+                alert("Error: " + error);
             }
         }
 

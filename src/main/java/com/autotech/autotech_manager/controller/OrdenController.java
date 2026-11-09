@@ -25,16 +25,14 @@ public class OrdenController {
         return repo.listar();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrdenTrabajo> buscar(@PathVariable int id) {
-        return repo.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @PostMapping
     public ResponseEntity<String> crear(@RequestBody OrdenRequest req) {
         try {
+            Integer activo = jdbc.queryForObject("SELECT activo FROM Mecanicos WHERE id_mecanico = ?", Integer.class, req.id_mecanico_responsable());
+            if (activo == null || activo == 0) {
+                return ResponseEntity.badRequest().body("Error: No se puede asignar un mecánico inactivo.");
+            }
+
             repo.insertarOrden(
                 req.id_vehiculo(), 
                 req.kilometraje_ingreso(), 
@@ -44,11 +42,7 @@ public class OrdenController {
             );
             return ResponseEntity.ok("Orden creada exitosamente en estado 'Recibida'.");
         } catch (Exception e) {
-            String mensajeError = e.getMessage();
-            if (mensajeError != null && (mensajeError.contains("FOREIGN KEY") || mensajeError.contains("REFERENCE"))) {
-                return ResponseEntity.badRequest().body("Error: El ID del vehículo o del mecánico no existe en la base de datos. Verifique los datos.");
-            }
-            return ResponseEntity.badRequest().body("Error al crear la orden: " + mensajeError);
+            return ResponseEntity.badRequest().body("Error al crear la orden: " + e.getMessage());
         }
     }
 
@@ -63,6 +57,13 @@ public class OrdenController {
         
         if (estadoActual.equals("Finalizada") || estadoActual.equals("Cancelada")) {
             return ResponseEntity.badRequest().body("La orden ya está cerrada y no puede modificarse.");
+        }
+
+        if (nuevoEstado.equals("Finalizada")) {
+            Integer controles = jdbc.queryForObject("SELECT COUNT(*) FROM ControlesCalidad WHERE id_orden = ? AND resultado = 'Aprobado'", Integer.class, id);
+            if (controles == null || controles == 0) {
+                return ResponseEntity.badRequest().body("Error: No se puede finalizar la orden. Falta el Control de Calidad aprobado.");
+            }
         }
         
         List<String> estadosValidos = List.of(
@@ -82,6 +83,11 @@ public class OrdenController {
     @PutMapping("/{id}/mecanico")
     public ResponseEntity<String> asignarMecanico(@PathVariable int id, @RequestParam int idMecanico) {
         try {
+            Integer activo = jdbc.queryForObject("SELECT activo FROM Mecanicos WHERE id_mecanico = ?", Integer.class, idMecanico);
+            if (activo == null || activo == 0) {
+                return ResponseEntity.badRequest().body("Error: El mecánico seleccionado está inactivo.");
+            }
+            
             jdbc.update("UPDATE OrdenesTrabajo SET id_mecanico_responsable = ? WHERE id_orden = ?", idMecanico, id);
             return ResponseEntity.ok("Mecánico asignado correctamente.");
         } catch (Exception e) {

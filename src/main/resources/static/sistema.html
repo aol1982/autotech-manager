@@ -363,7 +363,7 @@
         </div>
     </div>
 
-    <!-- MODALES -->
+    <!-- MODAL GESTIÓN DE ORDEN -->
     <div class="modal fade" id="modalOrden" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -1082,7 +1082,7 @@
             }
         }
 
-        function abrirModal(orden) {
+        async function abrirModal(orden) {
             ordenActivaId = orden.id_orden;
             ordenActivaEstado = orden.estado;
 
@@ -1108,7 +1108,12 @@
             const btnCalidad = document.getElementById('btn-calidad');
             const btnGarantia = document.getElementById('btn-garantia');
             
-            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada') {
+            // Validar si la orden tiene un cambio de motor registrado
+            const resMotores = await fetch('/api/reportes/historial-motores');
+            const historialMotores = await resMotores.json();
+            const tieneCambioMotor = historialMotores.some(c => c.id_orden === orden.id_orden);
+
+            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada' || !tieneCambioMotor) {
                 btnCalidad.style.display = 'none';
                 btnGarantia.style.display = 'none';
             } else {

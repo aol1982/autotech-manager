@@ -363,7 +363,6 @@
         </div>
     </div>
 
-    <!-- MODAL GESTIÓN DE ORDEN -->
     <div class="modal fade" id="modalOrden" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -462,7 +461,6 @@
         </div>
     </div>
 
-    <!-- MODAL PAGOS -->
     <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -482,7 +480,6 @@
         </div>
     </div>
 
-    <!-- MODAL MOTOR -->
     <div class="modal fade" id="modalMotor" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -521,7 +518,6 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO MOTOR -->
     <div class="modal fade" id="modalNuevoMotor" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -548,7 +544,6 @@
         </div>
     </div>
 
-    <!-- MODAL USUARIOS -->
     <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -587,7 +582,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR CLIENTE -->
     <div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -620,7 +614,6 @@
         </div>
     </div>
 
-    <!-- MODAL VEHICULOS CLIENTE -->
     <div class="modal fade" id="modalVehiculosCliente" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -1108,18 +1101,22 @@
             const btnCalidad = document.getElementById('btn-calidad');
             const btnGarantia = document.getElementById('btn-garantia');
             
-            // Validar si la orden tiene un cambio de motor registrado
             const resMotores = await fetch('/api/reportes/historial-motores');
             const historialMotores = await resMotores.json();
             const tieneCambioMotor = historialMotores.some(c => c.id_orden === orden.id_orden);
 
-            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada' || !tieneCambioMotor) {
+            if (orden.estado === 'Finalizada' || orden.estado === 'Cancelada') {
                 btnCalidad.style.display = 'none';
                 btnGarantia.style.display = 'none';
             } else {
                 btnCalidad.style.display = 'inline-block';
-                btnGarantia.style.display = 'inline-block';
-                btnGarantia.href = `/api/pdf/garantia/${orden.id_orden}`;
+                
+                if (tieneCambioMotor) {
+                    btnGarantia.style.display = 'inline-block';
+                    btnGarantia.href = `/api/pdf/garantia/${orden.id_orden}`;
+                } else {
+                    btnGarantia.style.display = 'none';
+                }
             }
 
             const selectMec = document.getElementById('select-mecanico');

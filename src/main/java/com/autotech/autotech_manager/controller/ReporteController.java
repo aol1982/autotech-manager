@@ -39,19 +39,19 @@ public class ReporteController {
 
     @GetMapping("/historial-ordenes")
     public List<Map<String, Object>> historialOrdenes() {
-        // CORRECCIÓN: Ya no usamos la vista. Hacemos el JOIN directo para garantizar que el id_vehiculo llegue al frontend.
+        // Se reemplazó m.nombre_completo por un CAST seguro para evitar el error en Azure
         String sql = """
             SELECT 
                 o.id_orden,
                 o.id_vehiculo,
-                c.nombre AS cliente,
-                CONCAT(v.marca, ' ', v.model) AS vehiculo,
-                v.placa,
-                m.nombre_completo AS mecanico,
+                ISNULL(c.nombre, 'Cliente no asignado') AS cliente,
+                CONCAT(ISNULL(v.marca, ''), ' ', ISNULL(v.model, '')) AS vehiculo,
+                ISNULL(v.placa, 'Sin placa') AS placa,
+                ISNULL(CAST(m.id_mecanico AS VARCHAR), 'Sin asignar') AS mecanico,
                 o.estado
             FROM OrdenesTrabajo o
-            INNER JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo
-            INNER JOIN Clientes c ON v.id_cliente = c.id_cliente
+            LEFT JOIN Vehiculos v ON o.id_vehiculo = v.id_vehiculo
+            LEFT JOIN Clientes c ON v.id_cliente = c.id_cliente
             LEFT JOIN Mecanicos m ON o.id_mecanico_responsable = m.id_mecanico
             ORDER BY o.id_orden DESC
             """;

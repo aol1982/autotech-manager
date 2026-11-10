@@ -782,43 +782,49 @@
         }
 
         async function cargarOrdenes() {
-            const res = await fetch('/api/reportes/historial-ordenes');
-            let data = await res.json();
-
-            if (userRole === 'Mecanico') {
-                data = data.filter(o => o.mecanico === nombreMecanico);
-            }
-
             const tbody = document.getElementById('tabla-ordenes');
-            tbody.innerHTML = '';
             
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center bg-white">No tienes órdenes asignadas.</td></tr>';
-                return;
-            }
+            try {
+                const res = await fetch('/api/reportes/historial-ordenes');
+                let data = await res.json();
 
-            data.forEach(o => {
-                // CORRECCIÓN AQUÍ: Evita que falle si el estado llega nulo
-                let estadoStr = o.estado || ''; 
-                let color = 'bg-warning text-dark';
+                // Filtro flexible: si el rol es Mecánico, filtra por su nombre
+                if (userRole === 'Mecanico') {
+                    data = data.filter(o => o.mecanico && o.mecanico.toLowerCase().includes(nombreMecanico.toLowerCase()));
+                }
+
+                tbody.innerHTML = ''; // Limpiar tabla
                 
-                if (estadoStr === 'Finalizada') color = 'bg-success';
-                else if (estadoStr === 'Cancelada') color = 'bg-danger';
-                else if (estadoStr.includes('Proceso') || estadoStr.includes('Aprobación')) color = 'bg-info text-dark';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center bg-white p-3"><strong>No hay órdenes registradas.</strong><br><small class="text-muted">Si acabas de registrar una, presiona "Recargar".</small></td></tr>';
+                    return;
+                }
 
-                tbody.innerHTML += `
-                    <tr class="bg-white">
-                        <td><strong>#${o.id_orden || ''}</strong></td>
-                        <td>${o.cliente || 'N/A'}</td>
-                        <td>${o.vehiculo || 'N/A'}</td>
-                        <td>${o.placa || 'N/A'}</td>
-                        <td>${o.mecanico || 'Sin asignar'}</td>
-                        <td><span class="badge ${color}">${estadoStr || 'N/A'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="abrirModalPorId(${o.id_orden})">Gestionar Orden</button>
-                        </td>
-                    </tr>`;
-            });
+                data.forEach(o => {
+                    let estadoStr = o.estado || 'Desconocido'; 
+                    let color = 'bg-warning text-dark';
+                    
+                    if (estadoStr === 'Finalizada') color = 'bg-success';
+                    else if (estadoStr === 'Cancelada') color = 'bg-danger';
+                    else if (estadoStr.includes('Proceso') || estadoStr.includes('Aprobación')) color = 'bg-info text-dark';
+
+                    tbody.innerHTML += `
+                        <tr class="bg-white">
+                            <td><strong>#${o.id_orden || ''}</strong></td>
+                            <td>${o.cliente || 'N/A'}</td>
+                            <td>${o.vehiculo || 'N/A'}</td>
+                            <td>${o.placa || 'N/A'}</td>
+                            <td>${o.mecanico || 'Sin asignar'}</td>
+                            <td><span class="badge ${color}">${estadoStr}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="abrirModalPorId(${o.id_orden})">Gestionar Orden</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (error) {
+                console.error("Error al cargar órdenes:", error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger p-3">Error de conexión con el servidor.</td></tr>';
+            }
         }
 
         async function abrirModalPorId(idOrden) {
@@ -855,7 +861,6 @@
             }
         }
 
-        // CORRECCIÓN AQUÍ: Agregada la función guardarCliente que faltaba y rompía el HTML
         async function guardarCliente(event) {
             event.preventDefault();
             const cliente = {
@@ -1156,7 +1161,7 @@
             document.getElementById('modal-id-orden').innerText = '#' + orden.id_orden;
             document.getElementById('modal-cliente').innerText = orden.cliente;
             document.getElementById('modal-vehiculo-texto').innerText = orden.vehiculo + ' - Placa: ' + orden.placa;
-            document.getElementById('modal-id-vehiculo').value = orden.id_vehiculo; // <-- Aquí se llena el input
+            document.getElementById('modal-id-vehiculo').value = orden.id_vehiculo;
             
             const spanEstado = document.getElementById('modal-estado');
             spanEstado.innerText = orden.estado;
@@ -1199,7 +1204,6 @@
                 else if (orden.mecanico === 'Juan Carlos López') selectMec.value = "3";
             }
 
-            // Asegúrate de reiniciar el select de tipo de pago y estado del modal de pago
             document.getElementById('tipo-pago').value = 'parcial';
             document.getElementById('pago-monto').readOnly = false;
             document.getElementById('pago-monto').value = '';
